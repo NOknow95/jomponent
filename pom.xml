@@ -9,7 +9,12 @@
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
   <modules>
-    <module>core-utils</module>
+    <module>core-date</module>
+    <module>core-utils-other</module>
+    <module>core-pdf</module>
+    <module>core-xml</module>
+    <module>core-json</module>
+    <module>core-sheet</module>
   </modules>
 
   <properties>
