@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 /**
  * @author wang.jianwen
  * @version 1.0
- * @CreateDate 2020/01/15
- * @Desc
+ * @date 2020/01/15
  */
 public class TreeParser<T extends TreeNode> {
 

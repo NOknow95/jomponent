@@ -6,8 +6,7 @@ import java.util.Map;
 /**
  * @author wang.jianwen
  * @version 1.0
- * @CreateDate 2020/03/05
- * @Desc
+ * @date 2020/03/05
  */
 public class CollectionUtils {
 
