@@ -1,5 +1,7 @@
 package com.wjw.core.sheet;
 
+import java.io.OutputStream;
+
 /**
  * refer to <a href='https://www.jianshu.com/p/6414185b2f01'>web page</a>
  *
@@ -7,8 +9,7 @@ package com.wjw.core.sheet;
  * @version 1.0
  * @date 2020/03/05
  */
-public class Temp {
+public interface ISheetParser {
 
-  public static void main(String[] args)  {
-  }
+  void export(OutputStream outputStream, String fileName);
 }
