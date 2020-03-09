@@ -22,6 +22,7 @@
     <logback.version>1.2.3</logback.version>
     <fastjson.version>1.2.62</fastjson.version>
     <opencsv.version>5.0</opencsv.version>
+    <version.org.projectlombok.lombok>1.18.10</version.org.projectlombok.lombok>
   </properties>
 
   <dependencyManagement>
@@ -64,7 +65,13 @@
         <artifactId>opencsv</artifactId>
         <version>${opencsv.version}</version>
       </dependency>
-      <!--cvs-->
+
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${version.org.projectlombok.lombok}</version>
+        <scope>provided</scope>
+      </dependency>
 
     </dependencies>
   </dependencyManagement>
