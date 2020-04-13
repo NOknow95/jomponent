@@ -1,8 +1,8 @@
-package com.wjw.core.sheet;
+package com.wjw.core.sheet.poi;
 
 import com.opencsv.CSVWriter;
 import com.opencsv.CSVWriterBuilder;
-import com.wjw.core.sheet.constans.GlobalConts;
+import com.wjw.core.sheet.constans.TestGlobalConstans;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -24,7 +24,7 @@ class TestSheetApi {
 
   @BeforeEach
   void setUp() {
-    File rootDir = new File(GlobalConts.ROOT_OUTPUT_DIR);
+    File rootDir = new File(TestGlobalConstans.ROOT_OUTPUT_DIR);
     if (!rootDir.exists()) {
       boolean mkdirs = rootDir.mkdirs();
       logger.info(() -> "mkdirs = " + mkdirs);
@@ -34,7 +34,7 @@ class TestSheetApi {
   @Test
   void writeArrays() throws IOException {
     CSVWriter writer = (CSVWriter) new CSVWriterBuilder(
-        new FileWriter(GlobalConts.ROOT_OUTPUT_DIR + "writeArrays.csv"))
+        new FileWriter(TestGlobalConstans.ROOT_OUTPUT_DIR + "writeArrays.csv"))
         .withSeparator(',').build();
     String[] entries = "111#2#3".split("#");
     writer.writeNext(entries, false);
@@ -45,7 +45,7 @@ class TestSheetApi {
   @Test
   void writeListArrays() throws IOException {
     CSVWriter writer = (CSVWriter) new CSVWriterBuilder(
-        new FileWriter(GlobalConts.ROOT_OUTPUT_DIR + "writeListArrays.csv"))
+        new FileWriter(TestGlobalConstans.ROOT_OUTPUT_DIR + "writeListArrays.csv"))
         .withSeparator(',').build();
     List<String[]> list = new ArrayList<String[]>() {{
       add(new String[]{"no", "name", "age"});
@@ -70,6 +70,6 @@ class TestSheetApi {
     writer.writeAll(list);
     writer.close();
     byte[] bytes = byteArrayOutputStream.toByteArray();
-    Files.write(Paths.get(GlobalConts.ROOT_OUTPUT_DIR, "writeToBytes.csv"), bytes);
+    Files.write(Paths.get(TestGlobalConstans.ROOT_OUTPUT_DIR, "writeToBytes.csv"), bytes);
   }
 }
