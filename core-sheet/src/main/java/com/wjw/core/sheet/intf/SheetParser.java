@@ -2,6 +2,7 @@ package com.wjw.core.sheet.intf;
 
 import com.wjw.core.exception.BaseException;
 import com.wjw.core.sheet.component.CellData;
+import com.wjw.core.sheet.component.SheetContext;
 import com.wjw.core.sheet.exception.ErrorEnums;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -68,6 +69,8 @@ public abstract class SheetParser {
   }
 
   public abstract void export(Map<String, List<CellData>> cellDataMap, OutputStream outputStream);
+
+  public abstract <T> void export(List<SheetContext<T>> sheetContexts, OutputStream outputStream);
 
   public abstract void export2File(String filePath, Map<String, List<CellData>> cellDataMap);
 

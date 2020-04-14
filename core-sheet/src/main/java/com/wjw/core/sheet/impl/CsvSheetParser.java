@@ -4,6 +4,7 @@ import com.opencsv.CSVWriter;
 import com.opencsv.CSVWriterBuilder;
 import com.wjw.core.exception.BaseException;
 import com.wjw.core.sheet.component.CellData;
+import com.wjw.core.sheet.component.SheetContext;
 import com.wjw.core.sheet.exception.ErrorEnums;
 import com.wjw.core.sheet.intf.SheetParser;
 import java.io.File;
@@ -50,6 +51,11 @@ public class CsvSheetParser extends SheetParser {
       logger.error("export csv error.", e);
       throw new BaseException(ErrorEnums.EXPORT_CSV_ERROR);
     }
+  }
+
+  @Override
+  public <T> void export(List<SheetContext<T>> sheetContexts, OutputStream outputStream) {
+
   }
 
   @Override

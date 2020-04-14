@@ -3,8 +3,11 @@ package com.wjw.core.sheet.anno;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import com.wjw.core.sheet.component.FontStyle.Underline;
+import com.wjw.core.sheet.constant.FontConst;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 
 /**
@@ -16,13 +19,25 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 @Retention(RUNTIME)
 public @interface CellStyle {
 
-  int fontSize() default 18;
+  boolean bold() default false;
 
-  IndexedColors fontIndexedColor() default IndexedColors.BLACK;
+  boolean italic() default false;
 
-  IndexedColors bgIndexedColor() default IndexedColors.WHITE;
+  short fontHeight() default FontConst.INVALID_FONT_HEIGHT;
 
-  String fontColor() default "#FFFFFFFF";
+  IndexedColors fontColor() default IndexedColors.BLACK;
 
-  String bgColor() default "#00000000";
+  IndexedColors bgColor() default IndexedColors.WHITE;
+
+  Underline underline() default Underline.UNDERLINE_SINGLE;
+
+  boolean rowBorder() default true;
+
+  boolean columnBorder() default true;
+
+  CellType dataType() default CellType.STRING;
+
+  String fontColorStr() default "#FFFFFFFF";
+
+  String bgColorStr() default "#00000000";
 }

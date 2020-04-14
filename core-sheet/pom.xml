@@ -16,6 +16,11 @@
     <dependency>
       <groupId>com.wjw.core</groupId>
       <artifactId>core-exception</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.wjw.core</groupId>
+      <artifactId>core-utils-other</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
 

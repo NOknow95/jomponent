@@ -29,6 +29,8 @@ public class CellData {
   private IndexedColors fontColor;
   private IndexedColors bgColor;
   private Underline underline;
+  private Boolean rowBorder;
+  private Boolean columnBorder;
   private CellType dataType = CellType.STRING;
 
   public CellData(int rowIndex, int columnIndex, String value) {

@@ -13,14 +13,14 @@ public @interface SheetField {
 
   String name();
 
-  int ordinal() default 0;
+  int ordinal();
 
   DataType dataType() default DataType.STRING;
 
   boolean displayable() default true;
 
-  CellStyle headerStyle();
+  CellStyle cellStyle() default @CellStyle;
 
-  CellStyle contentStyle();
+  boolean overrideFormStyle() default false;
 
 }
