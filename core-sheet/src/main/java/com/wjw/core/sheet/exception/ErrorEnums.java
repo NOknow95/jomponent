@@ -11,6 +11,7 @@ public enum ErrorEnums implements IErrorCode {
   NOT_FOUND("COMMON-00001", "The {0} is not found."),
   FILE_NOT_FOUND("COMMON-00002", "The file({0}) is not found."),
   REFLECT_ERROR("COMMON-00003", "Reflect error."),
+  REQUIRED("COMMON-00004", "The {0} is required."),
 
   EXPORT_ERROR("EXPORT-00001", "Export error."),
   EXPORT_TO_FILE_ERROR("EXPORT-00002", "Export to file[{0}] error."),

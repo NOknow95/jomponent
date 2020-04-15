@@ -1,6 +1,7 @@
 package com.wjw.core.sheet.component;
 
 import java.util.List;
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -9,6 +10,7 @@ import lombok.Data;
  * @date 2020/04/13
  */
 @Data
+@Builder
 public class SheetRowData {
 
   private int rowIndex;

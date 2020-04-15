@@ -29,7 +29,7 @@ public @interface CellStyle {
 
   IndexedColors bgColor() default IndexedColors.WHITE;
 
-  Underline underline() default Underline.UNDERLINE_SINGLE;
+  Underline underline() default Underline.UNDERLINE_NONE;
 
   boolean rowBorder() default true;
 

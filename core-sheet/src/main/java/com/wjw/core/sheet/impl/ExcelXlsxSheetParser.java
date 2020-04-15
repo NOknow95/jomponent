@@ -19,15 +19,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.IntSummaryStatistics;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import javax.xml.ws.Holder;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -36,8 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author NOknow
  * @version 1.0
- * @reateDate 2020/03/05
- * @description
+ * @date 2020/03/05
  */
 public class ExcelXlsxSheetParser extends SheetParser {
 
@@ -56,7 +56,8 @@ public class ExcelXlsxSheetParser extends SheetParser {
   }
 
   @Override
-  public <T> void export(List<SheetContext<T>> sheetContexts, OutputStream outputStream) {
+  public <T> void export(String fileName, List<SheetContext<T>> sheetContexts,
+      OutputStream outputStream) {
     Map<String, List<CellData>> resultCellDataMap = new TreeMap<>();
     for (SheetContext<T> sheetContext : sheetContexts) {
       if (isInvalid(sheetContext)) {
@@ -68,77 +69,100 @@ public class ExcelXlsxSheetParser extends SheetParser {
           .orElse(Collections.emptyList()).parallelStream()
           .map(SheetRowData::getRowIndex)
           .max(Integer::compareTo).orElse(0);
-      parseFormData2CellData(sheetName, currentRowIndex,
+      Holder<Integer> currentRowIndexHolder = new Holder<>(
+          currentRowIndex + sheetContext.getFormDataStartRowIndexPaddingTop() + 1);
+      parseFormData2CellData(sheetName, currentRowIndexHolder,
           sheetContext.getFormDataStartColumnIndexPaddingLeft(),
-          sheetContext.getFormDataStartRowIndexPaddingTop(),
           sheetContext.getFormData(),
           resultCellDataMap);
-      parseSheetFooter2CellData(sheetName, currentRowIndex, sheetContext.getSheetFooter(),
+      parseSheetFooter2CellData(sheetName, currentRowIndexHolder, sheetContext.getSheetFooter(),
           resultCellDataMap);
     }
+    export(resultCellDataMap, outputStream);
   }
 
   private <T> void parseFormData2CellData(String sheetName,
-      final int currentRowIndex,
-      final int formDataStartRowIndexPaddingTop,
+      final Holder<Integer> currentRowIndex,
       final int formDataStartColumnIndexPaddingLeft,
       List<T> formData,
       Map<String, List<CellData>> resultCellDataMap) {
-    T firstRowData = formData.get(0);
-    if (CollectionUtils.isEmpty(formData) || firstRowData == null) {
+    if (CollectionUtils.isEmpty(formData) || formData.get(0) == null) {
       return;
     }
+    T firstRowData = formData.get(0);
     List<CellData> cellDataList = new LinkedList<>();
-    try {
-      FormStyle formStyle = Optional
-          .ofNullable(firstRowData.getClass().getAnnotation(FormStyle.class))
-          .orElse(FormStyle.class.newInstance());
-      CellStyle headerStyle = formStyle.headerStyle();
-      Optional.ofNullable(firstRowData.getClass().getDeclaredFields()).ifPresent(fields -> {
-        Arrays.stream(fields).filter(Objects::nonNull)
-            .map(field -> field.getAnnotation(SheetField.class))
-            .filter(Objects::nonNull)
-            .sorted(Comparator.comparingInt(SheetField::ordinal))
-            .forEach(sheetField -> {
-              CellStyle cellStyle =
-                  sheetField.overrideFormStyle() ? sheetField.cellStyle() : headerStyle;
-              CellData cellData = new CellData(currentRowIndex + formDataStartRowIndexPaddingTop,
-                  formDataStartColumnIndexPaddingLeft + sheetField.ordinal(), sheetField.name(),
-                  sheetField.name(), cellStyle.bold(), cellStyle.italic(),
-                  cellStyle.fontHeight(), cellStyle.fontColor(),
-                  cellStyle.bgColor(), cellStyle.underline(),
-                  cellStyle.rowBorder(), cellStyle.columnBorder(),
-                  cellStyle.dataType());
-              cellDataList.add(cellData);
-            });
-      });
+    FormStyle formStyle = Optional
+        .ofNullable(firstRowData.getClass().getAnnotation(FormStyle.class))
+        .orElseThrow(() -> new BaseException(ErrorEnums.REQUIRED,
+            "@" + FormStyle.class.getName() + " in class:" + firstRowData.getClass().getName()));
+    CellStyle headerStyle = formStyle.headerStyle();
+    addFormData(currentRowIndex, formDataStartColumnIndexPaddingLeft,
+        firstRowData, cellDataList, headerStyle, false);
 
-      for (T dataItem : formData) {
-        Field[] fields = dataItem.getClass().getDeclaredFields();
-        if (fields == null || fields.length <= 0) {
-          continue;
-        }
-        System.out.println("");
-      }
-    } catch (InstantiationException | IllegalAccessException e) {
-      logger.error("Reflect error.", e);
-      throw new BaseException(ErrorEnums.REFLECT_ERROR);
+    CellStyle contentStyle = formStyle.contentStyle();
+    for (T dataItem : formData) {
+      addFormData(currentRowIndex, formDataStartColumnIndexPaddingLeft,
+          dataItem, cellDataList, contentStyle, true);
     }
     appentListInMap(sheetName, resultCellDataMap, cellDataList);
   }
 
-  private void parseSheetFooter2CellData(String sheetName, int currentRowIndex,
+  private <T> void addFormData(Holder<Integer> currentRowIndex,
+      int formDataStartColumnIndexPaddingLeft, T rowData, List<CellData> cellDataList,
+      CellStyle formStyle, boolean isFormData) {
+    List<CellData> cellDataListTmp = new ArrayList<>(cellDataList.size() + 10);
+    Holder<String> cellVal = new Holder<>("");
+    Optional.ofNullable(rowData.getClass().getDeclaredFields()).ifPresent(fields -> {
+      try {
+        for (Field field : fields) {
+          if (field == null) {
+            continue;
+          }
+          if (isFormData) {
+            field.setAccessible(true);
+            Object val = field.get(rowData);
+            cellVal.value = val == null ? "" : String.valueOf(val);
+            field.setAccessible(false);
+          }
+          Optional.ofNullable(field.getAnnotation(SheetField.class)).ifPresent(sheetField -> {
+            if (sheetField.displayable()) {
+              CellStyle cellStyle =
+                  sheetField.overrideFormStyle() ? sheetField.cellStyle() : formStyle;
+              String val = isFormData ? cellVal.value : sheetField.name();
+              CellData cellData = new CellData(
+                  currentRowIndex.value,
+                  sheetField.ordinal(),
+                  val, val, cellStyle.bold(), cellStyle.italic(),
+                  cellStyle.fontHeight(), cellStyle.fontColor(),
+                  cellStyle.bgColor(), cellStyle.underline(),
+                  cellStyle.rowBorder(), cellStyle.columnBorder(),
+                  cellStyle.dataType());
+              cellDataListTmp.add(cellData);
+            }
+          });
+        }
+      } catch (IllegalAccessException e) {
+        throw new BaseException(ErrorEnums.REFLECT_ERROR);
+      }
+    });
+    currentRowIndex.value++;
+    Holder<Integer> columnIndex = new Holder<>(0);
+    cellDataListTmp.stream().sorted(Comparator.comparingInt(CellData::getColumnIndex))
+        .forEach(data -> data
+            .setColumnIndex(formDataStartColumnIndexPaddingLeft + (columnIndex.value++)));
+    cellDataList.addAll(cellDataListTmp);
+  }
+
+  private void parseSheetFooter2CellData(String sheetName, Holder<Integer> currentRowIndexHolder,
       SheetFooter sheetFooter, Map<String, List<CellData>> resultCellDataMap) {
     if (sheetFooter == null || CollectionUtils.isEmpty(sheetFooter.getFooterRowData())) {
       return;
     }
     List<CellData> cellDataList = new LinkedList<>();
-    currentRowIndex += Optional.ofNullable(sheetFooter.getStartRowIndexPaddingTop()).orElse(0);
-    int finalCurrentRowIndex = currentRowIndex;
     sheetFooter.getFooterRowData().forEach((rowIndex, columnCells) -> {
       for (SheetColumnCell columnCell : Optional.ofNullable(columnCells)
           .orElse(Collections.emptyList())) {
-        CellData cellData = new CellData(rowIndex + finalCurrentRowIndex,
+        CellData cellData = new CellData(rowIndex - 1,
             columnCell.getColumnIndex(), columnCell.getValue(),
             columnCell.getValue(), columnCell.getBold(), columnCell.getItalic(),
             columnCell.getFontHeight(), columnCell.getFontColor(),
@@ -148,6 +172,16 @@ public class ExcelXlsxSheetParser extends SheetParser {
         cellDataList.add(cellData);
       }
     });
+    int paddingTop = Optional.ofNullable(sheetFooter.getStartRowIndexPaddingTop()).orElse(0);
+    cellDataList.parallelStream().forEach(item -> item.setRowIndex(
+        item.getRowIndex() + currentRowIndexHolder.value + paddingTop));
+
+    IntSummaryStatistics statistics = new ArrayList<>(sheetFooter.getFooterRowData().keySet())
+        .parallelStream()
+        .collect(Collectors.summarizingInt(i -> i));
+    int max = statistics.getMax();
+    currentRowIndexHolder.value += max;
+
     appentListInMap(sheetName, resultCellDataMap, cellDataList);
   }
 

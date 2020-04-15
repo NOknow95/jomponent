@@ -1,6 +1,7 @@
 package com.wjw.core.sheet.impl;
 
 import com.wjw.core.sheet.component.CellData;
+import com.wjw.core.sheet.component.SheetContext;
 import com.wjw.core.sheet.intf.SheetHelper;
 import com.wjw.core.sheet.intf.SheetParser;
 import java.io.OutputStream;
@@ -30,4 +31,12 @@ public class DefaultSheetHelper implements SheetHelper {
     sheetParsers.parallelStream().filter(parser -> parser.match(filePath))
         .forEach(parser -> parser.export2File(filePath, cellDataMap));
   }
+
+  @Override
+  public <T> void export(String fileName, List<SheetContext<T>> sheetContexts,
+      OutputStream outputStream) {
+    sheetParsers.parallelStream().filter(parser -> parser.match(fileName))
+        .forEach(parser -> parser.export(fileName, sheetContexts, outputStream));
+  }
+
 }

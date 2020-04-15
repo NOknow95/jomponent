@@ -3,13 +3,16 @@ package com.wjw.core.sheet.intf;
 import com.wjw.core.exception.BaseException;
 import com.wjw.core.sheet.component.CellData;
 import com.wjw.core.sheet.component.SheetContext;
+import com.wjw.core.sheet.constant.FontConst;
 import com.wjw.core.sheet.exception.ErrorEnums;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -48,6 +51,11 @@ public abstract class SheetParser {
               Font font = workbook.createFont();
               Optional.ofNullable(item.getBold()).ifPresent(font::setBold);
               Optional.ofNullable(item.getItalic()).ifPresent(font::setItalic);
+              Optional.ofNullable(item.getFontHeight()).ifPresent(fontHeight -> {
+                if (!Objects.equals(fontHeight, FontConst.INVALID_FONT_HEIGHT)) {
+                  font.setFontHeight(fontHeight);
+                }
+              });
               Optional.ofNullable(item.getFontColor())
                   .ifPresent(color -> font.setColor(color.index));
               Optional.ofNullable(item.getUnderline())
@@ -55,6 +63,18 @@ public abstract class SheetParser {
               cellStyle.setFont(font);
               Optional.ofNullable(item.getBgColor())
                   .ifPresent(color -> cellStyle.setFillBackgroundColor(color.index));
+              Optional.ofNullable(item.getRowBorder()).ifPresent(rowBorder -> {
+                if (rowBorder) {
+                  cellStyle.setBorderBottom(BorderStyle.THIN);
+                  cellStyle.setBorderTop(BorderStyle.THIN);
+                }
+              });
+              Optional.ofNullable(item.getColumnBorder()).ifPresent(cBorder -> {
+                if (cBorder) {
+                  cellStyle.setBorderLeft(BorderStyle.THIN);
+                  cellStyle.setBorderRight(BorderStyle.THIN);
+                }
+              });
               cell.setCellStyle(cellStyle);
             }
           });
@@ -70,7 +90,8 @@ public abstract class SheetParser {
 
   public abstract void export(Map<String, List<CellData>> cellDataMap, OutputStream outputStream);
 
-  public abstract <T> void export(List<SheetContext<T>> sheetContexts, OutputStream outputStream);
+  public abstract <T> void export(String fileName, List<SheetContext<T>> sheetContexts,
+      OutputStream outputStream);
 
   public abstract void export2File(String filePath, Map<String, List<CellData>> cellDataMap);
 

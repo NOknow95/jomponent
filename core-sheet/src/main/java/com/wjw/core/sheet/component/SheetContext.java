@@ -21,7 +21,11 @@ public class SheetContext<T> {
   private int formDataStartColumnIndexPaddingLeft;
   private SheetFooter SheetFooter;
 
-  public SheetContext() {
+  private SheetContext() {
+  }
+
+  public SheetContext(String sheetName) {
+    this.sheetName = sheetName;
     sheetHeader = new SheetHeader();
     formData = new LinkedList<>();
     formDataStartRowIndexPaddingTop = 0;
