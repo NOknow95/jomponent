@@ -1,7 +1,8 @@
-package com.wjw.core.sheet;
+package com.wjw.core.sheet.poi;
 
 import com.opencsv.CSVWriter;
 import com.opencsv.CSVWriterBuilder;
+import com.wjw.core.sheet.constans.TestGlobalConstans;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -12,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.logging.Logger;
@@ -21,11 +21,10 @@ import org.junit.platform.commons.logging.LoggerFactory;
 class TestSheetApi {
 
   private static final Logger logger = LoggerFactory.getLogger(TestSheetApi.class);
-  private static final String ROOT_DIR = "output/sheet/";
 
   @BeforeEach
   void setUp() {
-    File rootDir = new File(ROOT_DIR);
+    File rootDir = new File(TestGlobalConstans.ROOT_OUTPUT_DIR);
     if (!rootDir.exists()) {
       boolean mkdirs = rootDir.mkdirs();
       logger.info(() -> "mkdirs = " + mkdirs);
@@ -34,7 +33,8 @@ class TestSheetApi {
 
   @Test
   void writeArrays() throws IOException {
-    CSVWriter writer = (CSVWriter) new CSVWriterBuilder(new FileWriter(ROOT_DIR + "writeArrays.csv"))
+    CSVWriter writer = (CSVWriter) new CSVWriterBuilder(
+        new FileWriter(TestGlobalConstans.ROOT_OUTPUT_DIR + "writeArrays.csv"))
         .withSeparator(',').build();
     String[] entries = "111#2#3".split("#");
     writer.writeNext(entries, false);
@@ -44,7 +44,8 @@ class TestSheetApi {
 
   @Test
   void writeListArrays() throws IOException {
-    CSVWriter writer = (CSVWriter) new CSVWriterBuilder(new FileWriter(ROOT_DIR + "writeListArrays.csv"))
+    CSVWriter writer = (CSVWriter) new CSVWriterBuilder(
+        new FileWriter(TestGlobalConstans.ROOT_OUTPUT_DIR + "writeListArrays.csv"))
         .withSeparator(',').build();
     List<String[]> list = new ArrayList<String[]>() {{
       add(new String[]{"no", "name", "age"});
@@ -58,7 +59,8 @@ class TestSheetApi {
   @Test
   void writeToBytes() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    CSVWriter writer = (CSVWriter) new CSVWriterBuilder(new OutputStreamWriter(byteArrayOutputStream, StandardCharsets.UTF_8))
+    CSVWriter writer = (CSVWriter) new CSVWriterBuilder(
+        new OutputStreamWriter(byteArrayOutputStream, StandardCharsets.UTF_8))
         .withSeparator(',').build();
     List<String[]> list = new ArrayList<String[]>() {{
       add(new String[]{"no", "name", "age"});
@@ -68,6 +70,6 @@ class TestSheetApi {
     writer.writeAll(list);
     writer.close();
     byte[] bytes = byteArrayOutputStream.toByteArray();
-    Files.write(Paths.get(ROOT_DIR, "writeToBytes.csv"), bytes);
+    Files.write(Paths.get(TestGlobalConstans.ROOT_OUTPUT_DIR, "writeToBytes.csv"), bytes);
   }
 }

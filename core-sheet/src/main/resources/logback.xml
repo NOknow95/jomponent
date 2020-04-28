@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="10 seconds">
+
+  <contextName>web</contextName>
+  <property name="LOG_HOME" value="output/logs"/>
+  <property name="APP_NAME" value="core-sheet"/>
+  <property name="LOG_LEVEL" value="DEBUG"/>
+  <property name="maxFileSize" value="500MB"/>
+  <property name="maxHistory" value="15"/>
+
+  <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+
+  <!-- 控制台输出日志 -->
+  <appender class="ch.qos.logback.core.ConsoleAppender" name="STDOUT">
+    <!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder
+        by default -->
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%-5level] %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="fileAppender">
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!--File name of log file output-->
+      <FileNamePattern>${LOG_HOME}/${APP_NAME}-%d{yyyy-MM-dd}-%i.log</FileNamePattern>
+      <!--Days of log file retention-->
+      <MaxHistory>${maxHistory}</MaxHistory>
+      <maxFileSize>${maxFileSize}</maxFileSize>
+    </rollingPolicy>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <!--Format output:% d for date,% thread for thread name,%-5 level: level shows 5 character width% msg: log message from left,% n for newline character-->
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%-5level] %logger{50} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger level="${LOG_LEVEL}" name="com.wjw.core"/>
+
+  <root level="${LOG_LEVEL}">
+    <appender-ref ref="fileAppender"/>
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+</configuration>
