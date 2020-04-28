@@ -16,6 +16,7 @@
     <module>core-json</module>
     <module>core-sheet</module>
     <module>core-exception</module>
+    <module>jmd</module>
   </modules>
 
   <properties>
