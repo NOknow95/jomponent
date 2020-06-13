@@ -17,6 +17,7 @@
     <module>core-sheet</module>
     <module>core-exception</module>
     <module>jmd</module>
+    <module>hutool-usage</module>
   </modules>
 
   <properties>
